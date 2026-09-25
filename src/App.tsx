@@ -1,161 +1,137 @@
-import "./styles.css";
+import { useState } from "react";
+import { Role, useStore } from "./store";
+import BoreholesPanel from "./panels/BoreholesPanel";
+import EntryPanel from "./panels/EntryPanel";
+import SuspendedPanel from "./panels/SuspendedPanel";
+import SummaryPanel from "./panels/SummaryPanel";
+import RevisionsPanel from "./panels/RevisionsPanel";
 
-const project = {
-  "id": "hxwl-03",
-  "port": 5103,
-  "title": "岩土钻孔编录",
-  "subtitle": "钻孔分层、标贯与地下水位的现场记录面板",
-  "stack": "React + Vite + TypeScript + CSS",
-  "theme": [
-    "#92400e",
-    "#0f766e",
-    "#2563eb"
-  ],
-  "domain": "岩土工程",
-  "users": [
-    "岩土工程师",
-    "现场编录员",
-    "项目负责人"
-  ],
-  "metrics": [
-    "累计孔深",
-    "地层数量",
-    "最高标贯",
-    "地下水位"
-  ],
-  "filters": [
-    "黏土",
-    "粉砂",
-    "卵石",
-    "强风化"
-  ],
-  "fields": [
-    "钻孔编号",
-    "孔深",
-    "分层深度",
-    "岩性描述",
-    "土色",
-    "标贯击数",
-    "地下水位"
-  ],
-  "records": [
-    [
-      "ZK-18",
-      "22.6m",
-      "粉质黏土",
-      "中密",
-      "标贯12击，水位3.4m"
-    ],
-    [
-      "ZK-21",
-      "31.2m",
-      "卵石层",
-      "稍密",
-      "夹中粗砂，取样困难"
-    ],
-    [
-      "ZK-24",
-      "18.4m",
-      "强风化泥岩",
-      "硬塑",
-      "芯样完整率62%"
-    ]
-  ]
+const ROLES: Role[] = ["录入员", "负责人"];
+
+const ROLE_NAME: Record<Role, string> = {
+  录入员: "录入员·小李",
+  负责人: "负责人·王工",
 };
 
-const statusColors = ["status-ok", "status-watch", "status-danger"];
-
-function MetricCard({ label, value, index }: { label: string; value: string; index: number }) {
-  return (
-    <article className="metric-card">
-      <span>{label}</span>
-      <strong>{value}</strong>
-      <i className={statusColors[index % statusColors.length]} />
-    </article>
-  );
-}
+type TabKey = "boreholes" | "entry" | "suspended" | "summary" | "revisions";
 
 function App() {
-  const values = project.metrics.map((metric: string, index: number) => {
-    const base = [84, 12, 31, 7][index % 4];
-    return String(base + index * 3);
-  });
+  const { state, lastMessage, dispatch } = useStore();
+  const [role, setRole] = useState<Role>("录入员");
+  const [tab, setTab] = useState<TabKey>("entry");
+
+  const operator = ROLE_NAME[role];
+  const pendingRevisions = state.revisions.filter(
+    (r) => r.status === "pending",
+  ).length;
+  const lockedCount = new Set(state.versions.map((v) => v.stratumId)).size;
+
+  const tabs: { key: TabKey; label: string; badge?: number }[] = [
+    { key: "boreholes", label: "钻孔与地层" },
+    { key: "entry", label: "结果录入" },
+    { key: "suspended", label: "挂起记录", badge: state.suspended.length },
+    { key: "summary", label: "地层汇总与锁定" },
+    { key: "revisions", label: "修订处理", badge: pendingRevisions },
+  ];
 
   return (
     <main className="app-shell">
       <section className="hero">
         <div>
-          <p className="eyebrow">{project.id} · port {project.port}</p>
-          <h1>{project.title}</h1>
-          <p className="subtitle">{project.subtitle}</p>
+          <p className="eyebrow">hxwl-03 · 岩土工程试验资料管理</p>
+          <h1>土样试验结果落地层平台</h1>
+          <p className="subtitle">
+            试验结果按钻孔与取样深度自动落入对应地层；液限不高于塑限或深度压在地层分界线上的记录先挂起。
+            同一地层指标汇总为平均值与液性指数，凑齐后由负责人编入报告并锁定；锁定后新结果只能另建带原因的修订，原值不被覆盖。
+          </p>
         </div>
         <div className="stack-card">
-          <span>技术栈</span>
-          <strong>{project.stack}</strong>
+          <span>当前角色</span>
+          <div className="role-switch">
+            {ROLES.map((r) => (
+              <button
+                key={r}
+                className={r === role ? "primary-action" : ""}
+                onClick={() => setRole(r)}
+              >
+                {ROLE_NAME[r]}
+              </button>
+            ))}
+          </div>
+          <span>
+            录入员负责结果录入与挂起修正；负责人负责编报锁定与修订处理。
+          </span>
         </div>
       </section>
 
       <section className="metrics-grid">
-        {project.metrics.map((metric: string, index: number) => (
-          <MetricCard key={metric} label={metric} value={values[index]} index={index} />
+        <article className="metric-card">
+          <span>钻孔 / 地层</span>
+          <strong>
+            {state.boreholes.length} / {state.strata.length}
+          </strong>
+          <i className="status-ok" />
+        </article>
+        <article className="metric-card">
+          <span>有效试验记录</span>
+          <strong>{state.records.length}</strong>
+          <i className="status-ok" />
+        </article>
+        <article className="metric-card">
+          <span>挂起待处理</span>
+          <strong>{state.suspended.length}</strong>
+          <i className={state.suspended.length ? "status-danger" : "status-ok"} />
+        </article>
+        <article className="metric-card">
+          <span>已锁定地层 / 待处理修订</span>
+          <strong>
+            {lockedCount} / {pendingRevisions}
+          </strong>
+          <i className={pendingRevisions ? "status-watch" : "status-ok"} />
+        </article>
+      </section>
+
+      <nav className="tabs">
+        {tabs.map((t) => (
+          <button
+            key={t.key}
+            className={tab === t.key ? "tab active" : "tab"}
+            onClick={() => setTab(t.key)}
+          >
+            {t.label}
+            {t.badge !== undefined && t.badge > 0 && (
+              <em className="tab-badge">{t.badge}</em>
+            )}
+          </button>
         ))}
-      </section>
+      </nav>
 
-      <section className="workspace">
-        <aside className="panel narrow">
-          <h2>角色</h2>
-          <div className="chips">
-            {project.users.map((user: string) => (
-              <span key={user}>{user}</span>
-            ))}
-          </div>
-          <h2>筛选</h2>
-          <div className="chips muted">
-            {project.filters.map((filter: string) => (
-              <button key={filter}>{filter}</button>
-            ))}
-          </div>
-        </aside>
+      {lastMessage && !lastMessage.startsWith("LOCKED:") && (
+        <div className="toast">{lastMessage}</div>
+      )}
 
-        <section className="panel">
-          <div className="section-heading">
-            <div>
-              <p>{project.domain}</p>
-              <h2>记录字段</h2>
-            </div>
-            <button className="primary-action">新增记录</button>
-          </div>
-          <div className="field-grid">
-            {project.fields.map((field: string) => (
-              <label key={field}>
-                <span>{field}</span>
-                <input placeholder={"填写" + field} />
-              </label>
-            ))}
-          </div>
-        </section>
-      </section>
+      {tab === "boreholes" && <BoreholesPanel state={state} dispatch={dispatch} />}
+      {tab === "entry" && (
+        <EntryPanel state={state} dispatch={dispatch} operator={operator} />
+      )}
+      {tab === "suspended" && (
+        <SuspendedPanel state={state} dispatch={dispatch} operator={operator} />
+      )}
+      {tab === "summary" && (
+        <SummaryPanel state={state} dispatch={dispatch} role={role} operator={operator} />
+      )}
+      {tab === "revisions" && (
+        <RevisionsPanel state={state} dispatch={dispatch} role={role} operator={operator} />
+      )}
 
-      <section className="records panel">
-        <div className="section-heading">
-          <div>
-            <p>示例数据</p>
-            <h2>近期记录</h2>
-          </div>
-          <button>导出摘要</button>
-        </div>
-        <div className="record-list">
-          {project.records.map((record: string[], index: number) => (
-            <article key={record.join("-")} className="record-card">
-              <div className="record-index">{String(index + 1).padStart(2, "0")}</div>
-              <div>
-                <h3>{record[0]}</h3>
-                <p>{record.slice(1).join(" · ")}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
+      <footer className="footer-bar">
+        <span>
+          数据保存在浏览器本地（localStorage），挂起记录、参数汇总与修订历史刷新后原样保留。
+        </span>
+        <button onClick={() => dispatch({ type: "resetAll" })}>
+          恢复示例数据
+        </button>
+      </footer>
     </main>
   );
 }

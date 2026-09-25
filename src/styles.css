@@ -18,7 +18,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -214,14 +215,247 @@ label {
   gap: 8px;
 }
 
-input {
+input,
+select {
   width: 100%;
   min-height: 42px;
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0 12px;
   color: #172033;
+  background: #ffffff;
 }
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ------- 角色切换 ------- */
+
+.role-switch {
+  display: flex;
+  gap: 10px;
+}
+
+.role-switch button {
+  flex: 1;
+}
+
+/* ------- 标签页 ------- */
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tab {
+  border-radius: 999px;
+  padding: 0 18px;
+  position: relative;
+}
+
+.tab.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+}
+
+.tab-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  margin-left: 8px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #e11d48;
+  color: #ffffff;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+/* ------- 提示条 ------- */
+
+.toast {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, #ffffff);
+  background: color-mix(in srgb, var(--accent) 10%, #ffffff);
+  color: #115e59;
+  font-weight: 600;
+}
+
+.notice {
+  margin-top: 14px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  line-height: 1.6;
+}
+
+.notice-ok {
+  background: color-mix(in srgb, var(--accent) 10%, #ffffff);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, #ffffff);
+  color: #115e59;
+}
+
+.notice-warn {
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  color: #9a3412;
+}
+
+.notice-danger {
+  background: #fff1f2;
+  border: 1px solid #fda4af;
+  color: #9f1239;
+}
+
+/* ------- 徽标 ------- */
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.badge-ok {
+  background: color-mix(in srgb, var(--accent) 14%, #ffffff);
+  color: #0f766e;
+}
+
+.badge-warn {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.badge-danger {
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.badge-muted {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.badge-info {
+  background: color-mix(in srgb, var(--warn) 12%, #ffffff);
+  color: #1d4ed8;
+}
+
+/* ------- 表格 ------- */
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 14px;
+}
+
+.data-table th,
+.data-table td {
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.data-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+}
+
+.data-table th small {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+/* ------- 钻孔卡片 ------- */
+
+.hole-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.hole-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  background: #fbfdff;
+}
+
+.hole-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.hole-card h3 {
+  margin: 0;
+}
+
+.hole-card header span,
+.meta {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.inline-form input {
+  flex: 1;
+  min-width: 140px;
+}
+
+.inline-form button {
+  flex-shrink: 0;
+}
+
+.empty-hint {
+  color: #64748b;
+  line-height: 1.7;
+}
+
+/* ------- 录入表单 ------- */
+
+.entry-form .field-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.reason-field {
+  margin-top: 10px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.danger-action {
+  border-color: #fda4af;
+  color: #be123c;
+}
+
+/* ------- 记录卡片（挂起 / 修订） ------- */
 
 .record-list {
   display: grid;
@@ -232,7 +466,7 @@ input {
   display: grid;
   grid-template-columns: 56px 1fr;
   gap: 16px;
-  align-items: center;
+  align-items: start;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 16px;
@@ -254,10 +488,142 @@ input {
   margin-bottom: 6px;
 }
 
-.record-card p {
-  margin-bottom: 0;
-  color: #526070;
-  line-height: 1.6;
+.record-body {
+  min-width: 0;
+}
+
+.suspended-card .record-index {
+  background: #e11d48;
+}
+
+.revision-card .record-index {
+  background: var(--warn);
+}
+
+.reason-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.reason-text {
+  color: #9a3412;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.metrics-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.metric-chip {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  background: #ffffff;
+  font-size: 13px;
+}
+
+.metric-chip em {
+  color: #64748b;
+  font-style: normal;
+}
+
+.metric-chip b {
+  font-weight: 700;
+}
+
+.fix-form {
+  margin-top: 12px;
+  border-top: 1px dashed var(--border);
+  padding-top: 14px;
+}
+
+/* ------- 地层汇总卡片 ------- */
+
+.hole-block {
+  margin-bottom: 22px;
+}
+
+.hole-title {
+  border-left: 4px solid var(--primary);
+  padding-left: 10px;
+  margin-bottom: 12px;
+}
+
+.stratum-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  background: #fbfdff;
+  overflow-x: auto;
+}
+
+.stratum-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.stratum-head h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.stratum-head small {
+  color: #64748b;
+  font-weight: 400;
+  margin-left: 8px;
+}
+
+.stratum-flags {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.missing-hint {
+  color: #c2410c;
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+.record-detail {
+  margin-top: 10px;
+}
+
+.record-detail summary {
+  cursor: pointer;
+  color: var(--warn);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.history-title {
+  margin-top: 26px;
+}
+
+/* ------- 页脚 ------- */
+
+.footer-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  color: #64748b;
+  font-size: 13px;
+  padding: 18px 4px 0;
 }
 
 @media (max-width: 860px) {
@@ -267,7 +633,8 @@ input {
     grid-template-columns: 1fr;
   }
 
-  .field-grid {
+  .field-grid,
+  .entry-form .field-grid {
     grid-template-columns: 1fr;
   }
 }
